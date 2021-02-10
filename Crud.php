@@ -29,10 +29,10 @@ abstract class Crud
     /**
      * Insert records into table
      * @param array $data
-     * @return Crud
+     * @return Operations
      * @throws Exception
      */
-    public function save(array $data): Crud
+    public function save(array $data): Operations
     {
         //Check if all required values are given
         if (count($this->required) >= 1) {
@@ -43,9 +43,9 @@ abstract class Crud
             }
         }
 
-        $this->query = "INSERT INTO " . $this->entity . " (`" . implode("`,`", array_keys($data)) . "`) VALUES ('" . implode("','", $data) . "')";
+        $this->query = "INSERT INTO `" . $this->entity . "` (`" . implode("`,`", array_keys($data)) . "`) VALUES ('" . implode("','", $data) . "')";
 
-        return $this;
+        return new Operations($this->query, $this->primary);
     }
 
     /**
@@ -57,7 +57,7 @@ abstract class Crud
      */
     public function find(string $columns = "*"): Operations
     {
-        $this->query = "SELECT " . $columns . " FROM " . $this->entity;
+        $this->query = "SELECT " . $columns . " FROM `{$this->entity}`";
 
         return new Operations($this->query, $this->primary);
     }
@@ -75,7 +75,7 @@ abstract class Crud
             $data[$key] = "`{$key}` = '{$value}'";
         }
 
-        $this->query = "UPDATE " . $this->entity . " SET " . implode(",", $data);
+        $this->query = "UPDATE `" . $this->entity . "` SET " . implode(",", $data);
 
         return new Operations($this->query, $this->primary);
     }
@@ -89,7 +89,7 @@ abstract class Crud
      */
     public function delete(): Operations
     {
-        $this->query = "DELETE FROM " . $this->entity;
+        $this->query = "DELETE FROM `{$this->entity}`";
 
         return new Operations($this->query, $this->primary);
     }

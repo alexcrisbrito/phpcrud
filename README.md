@@ -31,8 +31,8 @@ composer require alexcrisbrito/php-crud
 ## Documentation
 ###### Documentação
 
-You can see index file on the root folder of package as reference and testing
-###### Veja o ficheiro index na pasta raiz para exemplos de uso e teste
+Refer to index file on the examples folder of package as reference and testing
+###### Veja o ficheiro index na pasta exemplos para os exemplos abaixo de uso e teste
 
 To start using PHPCrud we need a connection to a database. To see possible connections see [PDO Drivers on PHP.net](https://www.php.net/manual/pt_BR/pdo.drivers.php)
 
@@ -82,9 +82,9 @@ class Users extends Crud
 This method returns true or false respectively and throws an exception when you don't provide a value for a required field
 
 ###### Este método retorna verdadeiro ou falso respetivamente e, lança uma exceção quando você nao fornece valor para um campo obrigatório
+
 ```php
-<?php
-use Users;
+use Alexcrisbrito\Php_crud\examples\Users;
 
 $users = new Users();
 
@@ -94,7 +94,7 @@ $users = new Users();
  */
 
 try{
-    $id = $users->save(["Name"=>"Alex","Age"=>18]);
+    $id = $users->save(["Name"=>"Alex","Age"=>18])->execute();
 }catch(Exception $e){
     die($e->getMessage());
 }
@@ -105,7 +105,6 @@ if($id){
     echo "Not Inserted";
 }
 
-?>
 ```
 
 #### Retrieving records
@@ -114,61 +113,38 @@ This method returns a set of results or false when empty
 
 ###### Este método retorna um array de resultados ou falso
 ```php
-<?php
-use Users;
-
-$users = new Users();
-
-/*
- * Retrieve all records
- * Selecionar todos registos
-*/
-
-$records = $users->find();
-if($records){
-    foreach ($records as $row){
-        echo "Name: ".$row->Name;
-    }
-}
-
-/*
- * Retrieve specific columns of all records
- * Selecionar algumas colunas de todos os registros
-*/
-
-$records = $users->find("Name,Age");
-if($records){
-    foreach ($records as $row){
-        echo "Name: ".$row->Name;
-        echo "Age: ".$row->Age;
-    }
-}
-
-/*
- * Retrieve records with 'where' conditions
- * Selecionar registos impondo condições
-*/
-
-$records = $users->find("Name,Age","Name LIKE A% OR Age > 18");
-if($records){
-    foreach ($records as $row){
-        echo "Name: ".$row->Name;
-        echo "Age: ".$row->Age;
-    }
-}
-
-/*
- * Retrieve by primary key
- * Selecionar através da chave primaria  
+/**
+ * Finding records
+ *
+ * Returns false or set
+ * of results
+ *
  */
 
-$row = $users->findById("Name,Age",3);
-if($row){
-    echo "Name: ".$row->Name;
-    echo "Age: ".$row->Age;
-}
+//If no parameters in find method will fetch all columns
+$users->find("name,age")->execute();
 
-?>
+//With where clause
+$users->find()->where("name = 'Alexandre'")->execute();
+
+//With limit
+$users->find()->limit(2)->execute();
+
+//With custom order, if no parameters with do by primary key in DESC order
+$users->find()->order("id", "ASC")->execute();
+
+//You can freely mix all
+$result = $users->find("id,age,name")->where("name = 'Alexandre'")->order("id")->limit(5)->execute();
+
+if($result) {
+    if(is_array($result)) {
+        foreach ($result as $user) {
+            echo "Name: " . $user->name;
+        }
+    }else {
+        echo "Name: " . $result->name;
+    }
+}
 ```
 
 #### Updating records
@@ -177,40 +153,22 @@ This method returns true or false respectively, may return false when there's no
 
 ###### Este método retorna falso ou verdadeiro respetivamente, pode retornar falso quando não há necessidade de atualização.
 ```php
-<?php
-use Users;
-
-$users = new Users();
-
-/*
- * Updating all records of the table
- * This method works the same way as 
- * save method
+/**
  *
- * Atualizar os registos na tabela funciona 
- * é como inserir os registos
- */
-$update = $users->update(["Name"=>"Alex","Age"=>18]);
-if($update){
-    echo "Updated successfully";
-}else{
-    echo "Error updating";
-}
-
-/*
- * Updating records using primary 
- * key of the table
+ * Updating records
  *
- *Atualizar através da chave primária
+ * Returns false or true
+ *
  */
-$update = $users->update(["Name"=>"Alex","Age"=>18],3);
-if($update){
-    echo "Updated successfully";
-}else{
-    echo "Error updating";
-}
 
-?>
+//All records
+$users->update(["name" => "Alexandre"])->execute();
+
+//With conditions
+$users->update(["name"=>"2021"])->where("name = 'Alex'")->execute();
+
+//Limit update
+$users->update(["name"=>"Alexa"])->where("name = '2021'")->limit(2)->execute();
 ```
 
 #### Deleting records
@@ -218,41 +176,23 @@ if($update){
  
 This method returns true or false respectively
 ```php
-<?php
+/**
+ *
+ * Deleting records
+ *
+ * Returns false or true
+ *
+ */
 
-use Users;
+//All records
+$users->delete()->execute();
 
-$users = new Users();
+//With conditions
+$users->delete()->where("name = 'Alexandre'")->execute();
 
-/*
-* Delete all records of table
-* 
-* Apagar todos os registos da
-* tabela
-*/
-$delete = $users->delete();
-if($delete){
-    echo "Deleted successfully";
-}else{
-    echo "Error deleting";
-}
+//With limitation
+$users->delete()->where("name = 'Alexandre'")->limit(5)->execute();
 
-/*
-* Delete records of table using 
-* primary key
-* 
-* Apagar registos da tabela
-* usando a chave primaria
-*/
-
-$delete = $users->delete(3);
-if($delete){
-    echo "Deleted successfully";
-}else{
-    echo "Error deleting";
-}
-
-?>
 ```
 
 Thank you !

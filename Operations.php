@@ -11,13 +11,10 @@ final class Operations
     private string $query;
 
     /* Where clause */
-    private string $clause = "WHERE 1";
-
-    /* Fetched result set */
-    private $resultSet;
+    private string $clause = " WHERE 1";
 
     /* The fetching limit */
-    private int $limit;
+    private string $limit;
 
     /* The primary key of the table */
     private string $primary;
@@ -40,7 +37,7 @@ final class Operations
      */
     public function where(string $terms): Operations
     {
-        $this->clause = "WHERE {$terms}";
+        $this->clause = " WHERE {$terms}";
 
         return $this;
     }
@@ -54,7 +51,7 @@ final class Operations
      */
     public function limit(int $limit): Operations
     {
-        $this->limit = "LIMIT {$limit}";
+        $this->limit = " LIMIT {$limit}";
 
         return $this;
     }
@@ -70,21 +67,10 @@ final class Operations
      */
     public function order(string $column = null, string $order = "DESC"): Operations
     {
-        $this->order = "ORDER BY '" . $column ?? $this->primary . "' {$order}";
+
+        $this->order = " ORDER BY '" . (is_null($column) ? $this->primary : $column) . "' {$order}";
 
         return $this;
-    }
-
-    /**
-     *
-     * Get the query result set
-     *
-     * @return mixed
-     *
-     */
-    public function getResultSet()
-    {
-        return $this->resultSet;
     }
 
     /**
@@ -112,13 +98,12 @@ final class Operations
                 case 'select':
                     $this->clause = "1";
 
-                    if ($stmt->rowCount() == 1) {
-                        $this->resultSet = $stmt->fetch();
-                    } else {
-                        $this->resultSet = $stmt->fetchAll();
-                    }
-
                     return $stmt->rowCount() >= 1 ? $stmt->fetchAll() : $stmt->fetch();
+                    break;
+
+
+                case 'insert':
+                    return $stmt->rowCount() >= 1 ? Connection::connect()->lastInsertId() : false;
                     break;
 
                 default:
@@ -161,8 +146,8 @@ final class Operations
 
             case 'select':
                 $query = $this->query . $this->clause;
-                if (!empty($this->limit)) $query .= $this->limit;
                 if (!empty($this->order)) $query .= $this->order;
+                if (!empty($this->limit)) $query .= $this->limit;
                 break;
 
             case 'update':
