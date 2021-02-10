@@ -30,9 +30,8 @@ class Connection
             return self::$connection;
 
         } catch (PDOException $exception) {
-            $exception->getMessage();
+            die($exception->getMessage());
             return null;
         }
     }
-
 }
