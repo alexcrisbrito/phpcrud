@@ -8,7 +8,9 @@
     "CRUD",
     "Model",
     "Abstraction",
-    "php-crud"
+    "php-crud",
+    "database",
+    "mysql"
   ],
   "authors": [
     {
@@ -18,12 +20,13 @@
   ],
   "autoload": {
     "psr-4": {
-      "alexcrisbrito\\php_crud\\": ""
+      "Alexcrisbrito\\Php_crud\\": ""
     }
   },
   "require": {
-    "php": "^7.2",
+    "php": ">=7.4",
     "ext-json": "*",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "ext-mbstring": "*"
   }
 }

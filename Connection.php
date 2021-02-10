@@ -1,6 +1,6 @@
 <?php
 
-namespace alexcrisbrito\php_crud;
+namespace Alexcrisbrito\Php_crud;
 
 use PDO;
 use PDOException;
@@ -17,11 +17,11 @@ class Connection
      * @return PDO|null
      */
 
-    public static function connect() : ?PDO
+    public static function connect(): ?PDO
     {
-        try{
+        try {
             self::$connection = new PDO(
-                DB_CONFIG["driver"].":dbname=".DB_CONFIG["dbname"].";host=".DB_CONFIG["host"].";port=".DB_CONFIG["port"],
+                DB_CONFIG["driver"] . ":dbname=" . DB_CONFIG["dbname"] . ";host=" . DB_CONFIG["host"] . ";port=" . DB_CONFIG["port"],
                 DB_CONFIG["username"],
                 DB_CONFIG["passwd"],
                 DB_CONFIG["options"]
@@ -29,7 +29,7 @@ class Connection
 
             return self::$connection;
 
-        }catch (PDOException $exception){
+        } catch (PDOException $exception) {
             $exception->getMessage();
             return null;
         }
