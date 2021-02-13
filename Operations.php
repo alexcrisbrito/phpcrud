@@ -83,27 +83,24 @@ final class Operations
     {
         $query = $this->buildQuery();
 
-        $stmt = Connection::connect()->prepare($query);
+        $conn = Connection::connect();
+        $stmt = $conn->prepare($query);
 
         if ($stmt->execute()) {
 
             switch ($this->detectOperation()) {
                 case 'delete':
                 case 'update':
-                    $this->clause = "1";
-
                     return $stmt->rowCount() >= 1;
                     break;
 
                 case 'select':
-                    $this->clause = "1";
-
                     return $stmt->rowCount() >= 1 ? $stmt->fetchAll() : $stmt->fetch();
                     break;
 
 
                 case 'insert':
-                    return $stmt->rowCount() >= 1 ? Connection::connect()->lastInsertId() : false;
+                    return $stmt->rowCount() >= 1 ? $conn->lastInsertId() : false;
                     break;
 
                 default:

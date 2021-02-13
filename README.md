@@ -2,7 +2,7 @@
 
 [![Maintainer](http://img.shields.io/badge/maintainer-@alexcrisbrito-red.svg?style=flat-square)](https://github.com/alexcrisbrito)
 [![PHP from Packagist](https://img.shields.io/packagist/php-v/alexcrisbrito/php-crud.svg?style=flat-square)](https://packagist.org/packages/alexcrisbrito/php-crud)
-[![Latest Version](https://img.shields.io/github/release/alexcrisbrito/php-crud.svg?style=flat-square)](https://github.com/alexcrisbrito/php-crud/releases)
+[![Latest Version](https://img.shields.io/github/release/alexcrisbrito/phpcrud.svg?style=flat-square)](https://github.com/alexcrisbrito/phpcrud/releases)
 
 The php-crud is an abstraction component for your database that uses PDO and prepared statements for performing operations such as saving, retrieving, updating and deleting data.
 
