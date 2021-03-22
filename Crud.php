@@ -6,7 +6,6 @@ use Exception;
 
 abstract class Crud
 {
-
     /* The database table to operate */
     protected string $entity;
 
@@ -57,7 +56,7 @@ abstract class Crud
      */
     public function find(string $columns = "*"): Operations
     {
-        $this->query = "SELECT " . $columns . " FROM `{$this->entity}`";
+        $this->query = "SELECT " . preg_replace("/\s+/", "", $columns) . " FROM `{$this->entity}`";
 
         return new Operations($this->query, $this->primary);
     }
@@ -72,7 +71,7 @@ abstract class Crud
     public function update(array $data): Operations
     {
         foreach ($data as $key => $value) {
-            $data[$key] = "`{$key}` = '{$value}'";
+            $data[$key] = "{$key} = '{$value}'";
         }
 
         $this->query = "UPDATE `" . $this->entity . "` SET " . implode(",", $data);
@@ -82,8 +81,6 @@ abstract class Crud
 
     /**
      * Deletes records on table
-     * optionally you can use id parameter to
-     * delete using entity's primary key
      *
      * @return Operations
      */
@@ -92,5 +89,19 @@ abstract class Crud
         $this->query = "DELETE FROM `{$this->entity}`";
 
         return new Operations($this->query, $this->primary);
+    }
+
+    /**
+     * Custom query
+     *
+     * If you forgot the table name of this
+     * model, just write TABLE so that
+     * I can fill it for you when building
+     *
+     * @param string $query
+     */
+    public function opt(string $query)
+    {
+
     }
 }

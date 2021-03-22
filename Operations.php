@@ -11,16 +11,20 @@ final class Operations
     private string $query;
 
     /* Where clause */
-    private string $clause = " WHERE 1";
-
-    /* The fetching limit */
-    private string $limit;
+    private array $clause = [
+        "distinct" => "",
+        "where" => "",
+        "in" => "",
+        "like" => "",
+        "limit" => "",
+        "order" => "",
+    ];
 
     /* The primary key of the table */
     private string $primary;
 
-    /* The ordering of result selection */
-    private string $order;
+    /* The distinct clause */
+    private bool $distinct = false;
 
     public function __construct(string $query, string $primary)
     {
@@ -37,38 +41,103 @@ final class Operations
      */
     public function where(string $terms): Operations
     {
-        $this->clause = " WHERE {$terms}";
+        $this->clause['where'] = "{$terms}";
 
         return $this;
     }
 
     /**
-     *
-     * Limit records fetching
+     * Limit the number
+     * of rows to fetch
      *
      * @param int $limit
      * @return $this
      */
     public function limit(int $limit): Operations
     {
-        $this->limit = " LIMIT {$limit}";
+        $this->clause['limit'] = " LIMIT {$limit}";
 
         return $this;
     }
 
 
     /**
-     * Set the terms of the
-     * query to execute
+     * Set ordering
+     * of results
      *
      * @param string|null $column
      * @param string $order
      * @return $this
      */
-    public function order(string $column = null, string $order = "DESC"): Operations
+    public function order(string $order = "DESC", string $column = "PRIMARY_KEY"): Operations
     {
+        $this->clause['order'] = " ORDER BY `" . ($column == "PRIMARY_KEY" ? $this->primary : $column) . "` {$order}";
 
-        $this->order = " ORDER BY '" . (is_null($column) ? $this->primary : $column) . "' {$order}";
+        return $this;
+    }
+
+    /**
+     * Select only distinct
+     * values on the table
+     *
+     * @param string $column
+     * @return Operations
+     */
+    public function distinct(string $column): Operations
+    {
+        $this->clause['distinct'] = "DISTINCT " . $column;
+        $this->distinct = true;
+
+        return $this;
+    }
+
+    /**
+     * Sets the like clause
+     * on the query string
+     *
+     * @param string $column
+     * @param string $term
+     * @param string $position
+     * @return Operations
+     */
+    public function like(string $column, string $term, string $position = 'any'): Operations
+    {
+        switch ($position) {
+            case 'any':
+                $term = "%{$term}%";
+                break;
+
+            case 'start':
+                $term = "{$term}%";
+                break;
+
+            case 'end':
+                $term = "%{$term}";
+                break;
+
+            default:
+                break;
+        }
+
+        $this->clause['like'] = "{$column} LIKE '{$term}'";
+
+        return $this;
+    }
+
+    /**
+     * Set the in operator
+     * on query string
+     *
+     * @param string $column
+     * @param array $values
+     * @return Operations
+     */
+    public function in(array $values, string $column = "PRIMARY_KEY"): Operations
+    {
+        if ($column == "PRIMARY_KEY") $column = $this->primary;
+
+        $values = implode("','", $values);
+        $this->clause['in'] = "`{$column}` IN('{$values}')";
 
         return $this;
     }
@@ -77,9 +146,10 @@ final class Operations
      *
      * Execute the query
      * on the database
-     *
+     * @param int|null $fetch_mode
+     * @return array|bool|mixed|string
      */
-    public function execute()
+    public function execute(int $fetch_mode = null)
     {
         $query = $this->buildQuery();
 
@@ -95,7 +165,7 @@ final class Operations
                     break;
 
                 case 'select':
-                    return $stmt->rowCount() >= 1 ? $stmt->fetchAll() : $stmt->fetch();
+                    return $stmt->rowCount() >= 1 ? $stmt->fetchAll($fetch_mode) : $stmt->fetch($fetch_mode);
                     break;
 
 
@@ -106,7 +176,6 @@ final class Operations
                 default:
                     return true;
             }
-
         }
 
         return false;
@@ -130,33 +199,82 @@ final class Operations
 
 
     /**
-     *
      * Build the query
-     * prior to execution
      *
      * @return string
-     *
      */
     private function buildQuery(): string
     {
+        $query = $this->query;
+
         switch ($this->detectOperation()) {
 
             case 'select':
-                $query = $this->query . $this->clause;
-                if (!empty($this->order)) $query .= $this->order;
-                if (!empty($this->limit)) $query .= $this->limit;
+
+                $query .= " WHERE 1";
+                $query = explode(" ", $query);
+
+                $keyOfDefault = array_search("1", $query);
+
+                if (!$this->distinct) {
+
+                    if (!empty($this->clause['where']))
+                        $query[] = $this->clause['where'];
+
+                    if (!empty($this->clause['in']))
+                        $query[] = $this->clause['in'];
+
+                    if (!empty($this->clause['limit']))
+                        $query[] = $this->clause['limit'];
+
+                    if (!empty($this->clause['order']))
+                        $query[] = $this->clause['order'];
+
+                } else {
+
+                    $query[1] = $this->clause['distinct'];
+                }
+
+                if (array_key_exists($keyOfDefault + 1, $query)) {
+
+                    if (strpos($query[$keyOfDefault + 1], "LIMIT") || strpos($query[$keyOfDefault + 1], "ORDER")) {
+                        unset($query[$keyOfDefault - 1]);
+                    }
+
+                    unset($query[$keyOfDefault]);
+                }
+
+                $query = implode(" ", $query);
+
                 break;
 
             case 'update':
             case 'delete':
-                $query = $this->query . $this->clause;
-                if (!empty($this->limit)) $query .= $this->limit;
+                $query .= " WHERE 1";
+                $query = explode(" ", $query);
+
+                $keyOfDefault = array_search("1", $query);
+
+                if (!empty($this->clause['where']))
+                    $query[] = $this->clause['where'];
+
+                if (!empty($this->clause['in']))
+                    $query[] = $this->clause['in'];
+
+                if (!empty($this->clause['limit']))
+                    $query[] = $this->clause['limit'];
+
+                if (array_key_exists($keyOfDefault + 1, $query)) {
+                    unset($query[$keyOfDefault]);
+                }
+                $query = implode(" ", $query);
+
                 break;
 
             default:
-                $query = $this->query;
                 break;
         }
+
 
         return $query;
     }
