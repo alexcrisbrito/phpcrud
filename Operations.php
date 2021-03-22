@@ -147,9 +147,10 @@ final class Operations
      * Execute the query
      * on the database
      * @param int|null $fetch_mode
+     * @param bool $fetch_all
      * @return array|bool|mixed|string
      */
-    public function execute(int $fetch_mode = null)
+    public function execute(int $fetch_mode = null, bool $fetch_all = false)
     {
         $query = $this->buildQuery();
 
@@ -165,6 +166,9 @@ final class Operations
                     break;
 
                 case 'select':
+                    if ($fetch_all) {
+                        return $stmt->fetchAll($fetch_mode);
+                    }
                     return $stmt->rowCount() > 1 ? $stmt->fetchAll($fetch_mode) : $stmt->fetch($fetch_mode);
                     break;
 
@@ -225,11 +229,11 @@ final class Operations
                     if (!empty($this->clause['in']))
                         $query[] = $this->clause['in'];
 
-                    if (!empty($this->clause['limit']))
-                        $query[] = $this->clause['limit'];
-
                     if (!empty($this->clause['order']))
                         $query[] = $this->clause['order'];
+
+                    if (!empty($this->clause['limit']))
+                        $query[] = $this->clause['limit'];
 
                 } else {
 
