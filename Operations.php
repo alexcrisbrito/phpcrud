@@ -69,7 +69,7 @@ final class Operations
      * @param string $order
      * @return $this
      */
-    public function order(string $order = "DESC", string $column = "PRIMARY_KEY"): Operations
+    public function order( string $column = "PRIMARY_KEY", string $order = "DESC"): Operations
     {
         $this->clause['order'] = " ORDER BY `" . ($column == "PRIMARY_KEY" ? $this->primary : $column) . "` {$order}";
 

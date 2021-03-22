@@ -15,11 +15,11 @@ $users = new Users();
  * @return int|bool
  */
 
-try {
-    $users->save(["name" => "Alexandre", "age" => 17])->execute();
-} catch (Exception $e) {
-    echo $e->getMessage();
-}
+//try {
+//    $users->save(["name" => "Alexandre", "age" => 17])->execute();
+//} catch (Exception $e) {
+//    echo $e->getMessage();
+//}
 
 
 /**
@@ -27,7 +27,10 @@ try {
  *
  * Default fetch mode is OBJ,
  * but you can change it on
- * config
+ * config or pass other when executing
+ *
+ * Method SIGNATURE
+ * ->execute(fetch_mode: null, fetch_all: false)
  *
  * Possible values for
  * position argument on
@@ -48,21 +51,20 @@ $users->find()->where("name = 'Alexandre'")->execute();
 $users->find()->limit(2)->execute();
 
 //With custom order, if no parameters will do by table's primary key in DESC order
-$users->find()->order("ASC", "id")->execute();
+$users->find()->order("id", "ASC")->execute();
 
 //You can call the methods in the order you want
-$result = $users->find("name, age")->limit(1)->where("age > 12")->execute();
+$result = $users->find("name, age")->order("age")->limit(20)
+    ->execute(null, true);
 
-if($result) {
-    if(is_array($result)) {
-        foreach ($result as $user) {
-            echo "Name: " . $user->name . " - ". $user->age ."<br>";
-        }
-    }else {
-        echo "Name: " . $result->name;
+if ($result) {
+    foreach ($result as $user) {
+        echo "Name: " . $user->name . " - " . $user->age . "<br>";
     }
+
 }
 
+die;
 
 /**
  * Updating records
@@ -73,9 +75,9 @@ if($result) {
 
 $users->update(["name" => "Alexandre"])->execute();
 
-$users->update(["name"=>"2021"])->where("name = 'Alex'")->execute();
+$users->update(["name" => "2021"])->where("name = 'Alex'")->execute();
 
-$users->update(["name"=>"Alexa"])->where("name = '2021'")->limit(2)->execute();
+$users->update(["name" => "Alexa"])->where("name = '2021'")->limit(2)->execute();
 
 /**
  * Deleting records
