@@ -165,7 +165,7 @@ final class Operations
                     break;
 
                 case 'select':
-                    return $stmt->rowCount() >= 1 ? $stmt->fetchAll($fetch_mode) : $stmt->fetch($fetch_mode);
+                    return $stmt->rowCount() > 1 ? $stmt->fetchAll($fetch_mode) : $stmt->fetch($fetch_mode);
                     break;
 
 
@@ -178,6 +178,7 @@ final class Operations
             }
         }
 
+        $stmt->closeCursor();
         return false;
     }
 
