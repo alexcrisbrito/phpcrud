@@ -51,8 +51,7 @@ $users->find()->limit(2)->execute();
 $users->find()->order("ASC", "id")->execute();
 
 //You can call the methods in the order you want
-$result = $users->find("name, age")->limit(5)
-    ->order("DESC", "age")->where("age > 12")->execute();
+$result = $users->find("name, age")->limit(1)->where("age > 12")->execute();
 
 if($result) {
     if(is_array($result)) {
@@ -64,7 +63,6 @@ if($result) {
     }
 }
 
-die;
 
 /**
  * Updating records
