@@ -18,6 +18,7 @@ final class Operations
         "like" => "",
         "limit" => "",
         "order" => "",
+        "group_by" => ""
     ];
 
     /* The primary key of the table */
@@ -71,8 +72,14 @@ final class Operations
      */
     public function order( string $column = "PRIMARY_KEY", string $order = "DESC"): Operations
     {
-        $this->clause['order'] = " ORDER BY `" . ($column == "PRIMARY_KEY" ? $this->primary : $column) . "` {$order}";
+        $this->clause['order'] = " ORDER BY `" . ($column == "PRIMARY_KEY" ? $this->primary : $column) . "` $order";
 
+        return $this;
+    }
+
+    public function group_by(string $column = "PRIMARY_KEY") :Operations
+    {
+        $this->clause['group_by'] = " GROUP BY `". ($column == "PRIMARY_KEY" ? $this->primary : $column) . "`";
         return $this;
     }
 
@@ -229,6 +236,9 @@ final class Operations
                     if (!empty($this->clause['in']))
                         $query[] = $this->clause['in'];
 
+                    if (!empty($this->clause['group_by']))
+                        $query[] = $this->clause['group_by'];
+
                     if (!empty($this->clause['order']))
                         $query[] = $this->clause['order'];
 
@@ -242,7 +252,7 @@ final class Operations
 
                 if (array_key_exists($keyOfDefault + 1, $query)) {
 
-                    if (strpos($query[$keyOfDefault + 1], "LIMIT") || strpos($query[$keyOfDefault + 1], "ORDER")) {
+                    if (strpos($query[$keyOfDefault + 1], "LIMIT") || strpos($query[$keyOfDefault + 1], "ORDER") || strpos($query[$keyOfDefault + 1], "GROUP BY")) {
                         unset($query[$keyOfDefault - 1]);
                     }
 

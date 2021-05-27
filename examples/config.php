@@ -4,7 +4,7 @@ defined("DB_CONFIG") or define("DB_CONFIG", [
     "driver" => "mysql",
     "host" => "localhost",
     "port" => "3306",
-    "dbname" => "example",
+    "dbname" => "sgfa",
     "username" => "root",
     "passwd" => "",
     "options" => [

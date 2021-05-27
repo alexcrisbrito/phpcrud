@@ -86,22 +86,8 @@ abstract class Crud
      */
     public function delete(): Operations
     {
-        $this->query = "DELETE FROM `{$this->entity}`";
+        $this->query = "DELETE FROM `$this->entity`";
 
         return new Operations($this->query, $this->primary);
-    }
-
-    /**
-     * Custom query
-     *
-     * If you forgot the table name of this
-     * model, just write TABLE so that
-     * I can fill it for you when building
-     *
-     * @param string $query
-     */
-    public function opt(string $query)
-    {
-
     }
 }

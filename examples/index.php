@@ -15,11 +15,11 @@ $users = new Users();
  * @return int|bool
  */
 
-//try {
-//    $users->save(["name" => "Alexandre", "age" => 17])->execute();
-//} catch (Exception $e) {
-//    echo $e->getMessage();
-//}
+try {
+    $users->save(["name" => "Alexandre", "age" => 17])->execute();
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
 
 
 /**
@@ -55,7 +55,7 @@ $users->find()->order("id", "ASC")->execute();
 
 //You can call the methods in the order you want
 $result = $users->find("name, age")->order("age")->limit(20)
-    ->execute(null, true);
+    ->group_by()->in([1,2,3])->like("name", "Ale", 'start')->execute(null, true);
 
 if ($result) {
     foreach ($result as $user) {
